@@ -87,13 +87,23 @@ export class TicTacToeComponent {
     this.currentPlayer = response.currentPlayer;
     this.gameStatus = response.status;
 
-    if (response.winner) {
-      alert(`Winner: ${response.winner}`);
-      this.loadScoreboard();
-    } else if (response.status === GameStatus.Draw) {
-      alert('Match Draw!');
-      this.loadScoreboard();
-    }
+    // if (response.winner) {
+    //   alert(`Winner: ${response.winner}`);
+    //   this.loadScoreboard();
+    // } else if (response.status === GameStatus.Draw) {
+    //   alert('Match Draw!');
+    //   this.loadScoreboard();
+    // }
+    this.cdr.detectChanges(); // force UI refresh
+    setTimeout(() => {
+      if (response.winner) {
+        alert(`Winner: ${response.winner}`);
+        this.loadScoreboard();
+      } else if (response.status === GameStatus.Draw) {
+        alert('Match Draw!');
+        this.loadScoreboard();
+      }
+    });
   }
 
   // Reset game
