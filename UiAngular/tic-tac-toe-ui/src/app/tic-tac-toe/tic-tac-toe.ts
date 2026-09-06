@@ -23,6 +23,7 @@ export class TicTacToeComponent {
   gameId: string | null = null;
   scoreboard: any = {};
   vsComputer: boolean = false;
+  moveHistory: any[] = [];
 
   constructor(private gameService: GameService, private cdr: ChangeDetectorRef) {}
 
@@ -38,7 +39,6 @@ export class TicTacToeComponent {
       next: response => {
         this.gameId = response.id;
         this.applyResponse(response);
-        this.cdr.detectChanges(); // force refresh
       },
       error: err => {
         console.error('Start game failed:', err);
@@ -60,14 +60,12 @@ export class TicTacToeComponent {
       this.gameService.makeMove(this.gameId, move, this.vsComputer).subscribe({
         next: response => {
           this.applyResponse(response);
-          this.cdr.detectChanges(); // refresh after human move
 
           // If Computer Mode, trigger computer move immediately
           if (this.vsComputer && response.status === GameStatus.InProgress && response.currentPlayer === 'O') {
             this.gameService.makeComputerMove(this.gameId!).subscribe({
               next: compResponse => {
                 this.applyResponse(compResponse);
-                this.cdr.detectChanges(); // refresh after computer move
               },
               error: err => console.error('Computer move failed:', err)
             });
@@ -83,18 +81,13 @@ export class TicTacToeComponent {
 
   // Apply backend response to component state
   private applyResponse(response: any) {
-    this.board = [...response.board]; // new array reference
+    this.board = [...response.board];
     this.currentPlayer = response.currentPlayer;
     this.gameStatus = response.status;
+    this.moveHistory = response.history || [];
 
-    // if (response.winner) {
-    //   alert(`Winner: ${response.winner}`);
-    //   this.loadScoreboard();
-    // } else if (response.status === GameStatus.Draw) {
-    //   alert('Match Draw!');
-    //   this.loadScoreboard();
-    // }
-    this.cdr.detectChanges(); // force UI refresh
+    this.cdr.detectChanges();
+
     setTimeout(() => {
       if (response.winner) {
         alert(`Winner: ${response.winner}`);
@@ -103,7 +96,7 @@ export class TicTacToeComponent {
         alert('Match Draw!');
         this.loadScoreboard();
       }
-    });
+    }, 150); // short delay for UI refresh
   }
 
   // Reset game
@@ -112,7 +105,6 @@ export class TicTacToeComponent {
       this.gameService.resetGame(this.gameId).subscribe({
         next: response => {
           this.applyResponse(response);
-          this.cdr.detectChanges(); // refresh
         },
         error: err => {
           console.error('Reset failed:', err);
@@ -122,13 +114,17 @@ export class TicTacToeComponent {
     }
   }
 
-  // Undo last move
+  // Undo last move (mode-specific)
   undoMove() {
+    if (!this.moveHistory.length) {
+      alert('No moves to undo.');
+      return;
+    }
+
     if (this.gameId) {
       this.gameService.undoMove(this.gameId, this.vsComputer).subscribe({
         next: response => {
           this.applyResponse(response);
-          this.cdr.detectChanges(); // refresh
         },
         error: err => {
           console.error('Undo failed:', err);
@@ -143,7 +139,7 @@ export class TicTacToeComponent {
     this.gameService.getScoreboard().subscribe({
       next: response => {
         this.scoreboard = response;
-        this.cdr.detectChanges(); // refresh
+        this.cdr.detectChanges();
       },
       error: err => {
         console.error('Scoreboard failed:', err);
@@ -156,7 +152,6 @@ export class TicTacToeComponent {
     this.gameService.resetScoreboard().subscribe({
       next: () => {
         this.loadScoreboard();
-        this.cdr.detectChanges(); // refresh
       },
       error: err => {
         console.error('Reset scoreboard failed:', err);

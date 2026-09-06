@@ -23,3 +23,14 @@
   <p>Draws: {{ scoreboard.draws }}</p>
   <button (click)="resetScoreboard()">Reset Scoreboard</button>
 </div>
+
+<div class="history">
+  <h3>Move History</h3>
+  <ul>
+    @for (move of moveHistory; track $index) {
+    <li>
+      {{$index + 1}}. {{move.player}} → Row {{move.row+1}}, Col {{move.col+1}}
+    </li>
+  }
+  </ul>
+</div>
