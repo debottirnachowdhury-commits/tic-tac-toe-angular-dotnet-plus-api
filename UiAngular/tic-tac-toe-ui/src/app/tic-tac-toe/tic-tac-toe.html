@@ -2,7 +2,10 @@
   @for (row of [0,1,2]; track row) {
     <div class="row">
       @for (col of [0,1,2]; track col) {
-        <button class="cell" (click)="makeMove(row*3 + col)">
+        <button  
+          class="cell" 
+          [class.winning-cell]="isWinningCell(row*3 + col)"
+          (click)="makeMove(row*3 + col)">
           {{ board[row*3 + col] }}
         </button>
       }

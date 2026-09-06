@@ -134,16 +134,7 @@ namespace TicTacToeApi.Services
 
             if (game.Status == GameStatus.InProgress)
             {
-                if (!isComputer)
-                {
-                    // Human move: flip turn
-                    game.CurrentPlayer = game.CurrentPlayer == "X" ? "O" : "X";
-                }
-                else
-                {
-                    // Computer always plays O, so give turn back to X
-                    game.CurrentPlayer = "X";
-                }
+                game.CurrentPlayer = isComputer ? "X" : (game.CurrentPlayer == "X" ? "O" : "X");
             }
             else if (game.Status == GameStatus.Won)
             {
@@ -161,7 +152,6 @@ namespace TicTacToeApi.Services
 
         private void MakeComputerMove(GameState game)
         {
-            // 1. Computer tries to win
             if (TryFindWinningMove(game, "O", out var winMove))
             {
                 winMove.Player = "O";
@@ -169,86 +159,40 @@ namespace TicTacToeApi.Services
                 return;
             }
 
-            // 2. Computer tries to block X
             if (TryFindWinningMove(game, "X", out var blockMove))
             {
-                // IMPORTANT:
-                // We searched for X's winning position,
-                // but the actual move belongs to the computer = O.
                 blockMove.Player = "O";
-
                 ApplyMove(game, blockMove, isComputer: true);
                 return;
             }
 
-            // 3. Take center
             if (string.IsNullOrEmpty(game.Board[4]))
             {
-                ApplyMove(
-                    game,
-                    new Move
-                    {
-                        Player = "O",
-                        Row = 1,
-                        Col = 1
-                    },
-                    isComputer: true);
-
+                ApplyMove(game, new Move { Player = "O", Row = 1, Col = 1 }, isComputer: true);
                 return;
             }
 
-            // 4. Take a corner
-            var corners = new (int, int)[]
-            {
-        (0, 0),
-        (0, 2),
-        (2, 0),
-        (2, 2)
-            };
-
+            var corners = new (int, int)[] { (0, 0), (0, 2), (2, 0), (2, 2) };
             foreach (var (r, c) in corners)
             {
                 int idx = r * 3 + c;
-
                 if (string.IsNullOrEmpty(game.Board[idx]))
                 {
-                    ApplyMove(
-                        game,
-                        new Move
-                        {
-                            Player = "O",
-                            Row = r,
-                            Col = c
-                        },
-                        isComputer: true);
-
+                    ApplyMove(game, new Move { Player = "O", Row = r, Col = c }, isComputer: true);
                     return;
                 }
             }
 
-            // 5. Take any remaining cell
             for (int r = 0; r < 3; r++)
-            {
                 for (int c = 0; c < 3; c++)
                 {
                     int idx = r * 3 + c;
-
                     if (string.IsNullOrEmpty(game.Board[idx]))
                     {
-                        ApplyMove(
-                            game,
-                            new Move
-                            {
-                                Player = "O",
-                                Row = r,
-                                Col = c
-                            },
-                            isComputer: true);
-
+                        ApplyMove(game, new Move { Player = "O", Row = r, Col = c }, isComputer: true);
                         return;
                     }
                 }
-            }
         }
 
         private bool TryFindWinningMove(GameState game, string player, out Move move)
@@ -296,7 +240,8 @@ namespace TicTacToeApi.Services
                 {
                     game.Status = GameStatus.Won;
                     game.Winner = values.First();
-                    game.WinningCells = line.Select(i => (i / 3, i % 3)).ToList();
+                    // FIX: return flat indices instead of (row,col) tuples
+                    game.WinningCells = line.ToList();
                     return;
                 }
             }

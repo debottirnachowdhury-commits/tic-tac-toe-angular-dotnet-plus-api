@@ -24,6 +24,7 @@ export class TicTacToeComponent {
   scoreboard: any = {};
   vsComputer: boolean = false;
   moveHistory: any[] = [];
+  winningCells: number[] = [];   // NEW: highlight support
 
   constructor(private gameService: GameService, private cdr: ChangeDetectorRef) {}
 
@@ -61,12 +62,10 @@ export class TicTacToeComponent {
         next: response => {
           this.applyResponse(response);
 
-          // If Computer Mode, trigger computer move immediately
+          // Computer Mode: trigger computer move immediately
           if (this.vsComputer && response.status === GameStatus.InProgress && response.currentPlayer === 'O') {
             this.gameService.makeComputerMove(this.gameId!).subscribe({
-              next: compResponse => {
-                this.applyResponse(compResponse);
-              },
+              next: compResponse => this.applyResponse(compResponse),
               error: err => console.error('Computer move failed:', err)
             });
           }
@@ -85,6 +84,7 @@ export class TicTacToeComponent {
     this.currentPlayer = response.currentPlayer;
     this.gameStatus = response.status;
     this.moveHistory = response.history || [];
+    this.winningCells = response.winningCells || [];   // capture winning cells
 
     this.cdr.detectChanges();
 
@@ -103,9 +103,7 @@ export class TicTacToeComponent {
   resetGame() {
     if (this.gameId) {
       this.gameService.resetGame(this.gameId).subscribe({
-        next: response => {
-          this.applyResponse(response);
-        },
+        next: response => this.applyResponse(response),
         error: err => {
           console.error('Reset failed:', err);
           alert('Could not reset game.');
@@ -114,7 +112,7 @@ export class TicTacToeComponent {
     }
   }
 
-  // Undo last move (mode-specific)
+  // Undo last move
   undoMove() {
     if (!this.moveHistory.length) {
       alert('No moves to undo.');
@@ -123,9 +121,7 @@ export class TicTacToeComponent {
 
     if (this.gameId) {
       this.gameService.undoMove(this.gameId, this.vsComputer).subscribe({
-        next: response => {
-          this.applyResponse(response);
-        },
+        next: response => this.applyResponse(response),
         error: err => {
           console.error('Undo failed:', err);
           alert('Could not undo move.');
@@ -141,21 +137,20 @@ export class TicTacToeComponent {
         this.scoreboard = response;
         this.cdr.detectChanges();
       },
-      error: err => {
-        console.error('Scoreboard failed:', err);
-      }
+      error: err => console.error('Scoreboard failed:', err)
     });
   }
 
   // Reset scoreboard
   resetScoreboard() {
     this.gameService.resetScoreboard().subscribe({
-      next: () => {
-        this.loadScoreboard();
-      },
-      error: err => {
-        console.error('Reset scoreboard failed:', err);
-      }
+      next: () => this.loadScoreboard(),
+      error: err => console.error('Reset scoreboard failed:', err)
     });
+  }
+
+  // Helper: check if a cell is part of winningCells
+  isWinningCell(index: number): boolean {
+    return this.winningCells.includes(index);
   }
 }

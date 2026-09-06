@@ -14,7 +14,7 @@
         public string CurrentPlayer { get; set; } = "X";
         public GameStatus Status { get; set; } = GameStatus.InProgress;
         public string? Winner { get; set; }
-        public List<(int, int)> WinningCells { get; set; } = new();
+        public List<int> WinningCells { get; set; } = new();
         public List<Move> History { get; set; } = new();
     }
 }

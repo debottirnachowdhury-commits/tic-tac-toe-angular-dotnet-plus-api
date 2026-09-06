@@ -18,6 +18,11 @@
   vertical-align: middle;
 }
 
+.winning-cell {
+  background-color: yellow; /* highlight */
+  font-weight: bold;
+}
+
 .controls, .scoreboard {
   margin-top: 15px;
 }
