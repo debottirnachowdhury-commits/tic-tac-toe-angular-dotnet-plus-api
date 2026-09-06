@@ -1,0 +1,23 @@
+.board {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-bottom: 20px;
+}
+
+.row {
+  display: flex;
+  gap: 5px;
+}
+
+.cell {
+  width: 60px;
+  height: 60px;
+  font-size: 24px;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.controls, .scoreboard {
+  margin-top: 15px;
+}

@@ -1,0 +1,25 @@
+<div class="board">
+  @for (row of [0,1,2]; track row) {
+    <div class="row">
+      @for (col of [0,1,2]; track col) {
+        <button class="cell" (click)="makeMove(row*3 + col)">
+          {{ board[row*3 + col] }}
+        </button>
+      }
+    </div>
+  }
+</div>
+
+<div class="controls">
+  <button (click)="startGame(false)">New Two Player Game</button>
+  <button (click)="startGame(true)">New Computer Game</button>
+  <button (click)="resetGame()"  [disabled]="gameStatus !== GameStatus.InProgress" >Reset Game</button>
+  <button (click)="undoMove()" [disabled]="gameStatus !== GameStatus.InProgress">Undo Move</button>
+</div>
+
+<div class="scoreboard">
+  <p>X Wins: {{ scoreboard.xWins }}</p>
+  <p>O Wins: {{ scoreboard.oWins }}</p>
+  <p>Draws: {{ scoreboard.draws }}</p>
+  <button (click)="resetScoreboard()">Reset Scoreboard</button>
+</div>
