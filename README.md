@@ -100,3 +100,11 @@ ng test
 - Basic tests are included
 - README explains how to run and review the solution
 
+  ## Repository Link
+Clone this repo: https://github.com/debottirnachowdhury-commits/tic-tac-toe-angular-dotnet-plus-api
+
+## Prerequisites
+- Node.js (v18+ recommended)
+- Angular CLI (`npm install -g @angular/cli`)
+- .NET 6 SDK or later
+
